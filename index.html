@@ -58,10 +58,10 @@ Fast implementation in widely popular **R** package **`glmnet`** for
 Scikit-learn has an implementation only for linear and logistic models.
 
 |               | `normal`  | `logistic` | `poisson`  | `softplus` | `multinomial` | `cox`    |
-|:--------------|:----------|:-----------|:-----------|:-----------|:--------------|:---------|
-|`R`            |**`True`** |**`True`**  |**`True`**  |`False`     |`False`        |**`True`**|
-|`scikit-learn` |**`True`** |**`True`**  |`False`     |`False`     |`False`        |`False`   |
-|`pyglmnet`     |**`True`** |**`True`**  |**`True`**  |**`True`**  |**`True`**     |`False`   |
+|:--------------|:---------:|:----------:|:----------:|:----------:|:-------------:|:--------:|
+|`R`            |     `x`   |  `x`       |  `x`       |  --        |  --           |  `x`     |
+|`scikit-learn` |     `x`   |  `x`       |   --       |  --        |  --           |  --      |
+|`pyglmnet`     |     `x`   |  `x`       |  `x`       |  `x`       |  `x`          |  --      |
 ---
 
 [//]: (----------------------------------------------------------------------)
@@ -89,13 +89,8 @@ Scikit-learn has an implementation only for linear and logistic models.
 # Linear vs. Poisson Models
 
 <img src="figures/neurons-00.png" style="width: 800px;"/>
----
 
-# Linear vs. Poisson Models
-<img src="figures/neurons-01.png" style="width: 600px;"/>
-
---
-<img src="figures/neurons-02.png" style="width: 600px;"/>
+See [Linear vs. Poisson notebook](http://nbviewer.jupyter.org/github/pavanramkumar/pydata-chicago-2016/blob/master/notebooks/Linear_vs_Poisson.ipynb).
 ---
 
 # Linear vs. Poisson Models
@@ -165,14 +160,14 @@ def loss(X, y, beta0, beta):
 
 ### Negative Log Likelihood Loss
 
-- Real data is noisy. Let's assume uniform random Gaussian noise.
+- Real data is noisy. Let's assume random Gaussian noise.
 $$
 \mathbf{y} = \beta_0 + \mathbf{X}\beta + \epsilon; \epsilon \sim \mathcal{N}(\mathbf{0}, \sigma^2\mathbf{I})
 $$
 
 - The likelihood of observing the target variables, given the predictors is:
 $$
-P(\mathbf{y} | \mathbf{X}; \beta_0, \beta) \propto \prod_i \exp\left\[-\frac{1}{2} (y_i - \beta_0 - \mathbf{x}_i^T \beta)\right\]
+P(\mathbf{y} | \mathbf{X}; \beta_0, \beta) \propto \prod_i \exp\left\[-\frac{1}{2} (y_i - \beta_0 - \mathbf{x}_i^T \beta)^2\right\]
 $$
 
 - The negative log-likelihood function is identical to the sum squared loss!
@@ -429,9 +424,8 @@ def fit(X, y, max_iter, learning_rate):
 <img src="figures/reg.png" style="width: 400px;"/>
 ]
 On the same dataset size (\(N\)), a model with more parameters (\(q > p\))
-will fit better on the training set but generalize worse on a test set.
+will fit better on the training set but may generalize worse on a test set.
 This needs to be penalized.
-
 .left[
 $$
 L_2 \text{ penalized loss:      }
@@ -464,7 +458,7 @@ Example logistic regression: `\(N = 500, p = 100\)`.
 <img src="figures/reg-00-L2-003.png" style="width: 350px;"/>
 ]
 
-See [regularization demo notebook](http://link).
+See [Regularization notebook](http://nbviewer.jupyter.org/github/pavanramkumar/pydata-chicago-2016/blob/master/notebooks/Regularization.ipynb).
 
 ---
 
@@ -492,7 +486,7 @@ def L1loss(X, y, beta0, beta, reg_lambda):
 [//]: (----------------------------------------------------------------------)
 # Ridge vs. Lasso
 Example logistic regression: `\(N = 200, p = 500\)`.
-See [regularization demo notebook](http://link).
+See [Regularization notebook](http://nbviewer.jupyter.org/github/pavanramkumar/pydata-chicago-2016/blob/master/notebooks/Regularization.ipynb).
 .center[
 <img src="figures/reg-01-L2-001.png" style="width: 250px;"/>
 <img src="figures/reg-01-L2-003.png" style="width: 250px;"/>
@@ -613,7 +607,7 @@ increasing number of iterations.
 
 # Advanced Optimization
 #### Cyclic Coordinate Descent with Newton update
-
+[Optimization notebook](http://nbviewer.jupyter.org/github/pavanramkumar/pydata-chicago-2016/blob/master/notebooks/Optimization.ipynb).
 The active set strategy allows us to do better than vanilla gradient descent.
 In each iteration, we update each `\(\beta_k \in \mathcal{K}\)`
 with a Newton step.
@@ -624,13 +618,14 @@ vs.
 Newton step:
 `\(\beta - [J''(\beta)]^{-1} * J'(\beta)\)`
 
-<img src="figures/graddesc.png" style="width: 400px;"/>
+<img src="figures/graddesc.png" style="width: 300px;"/>
 
 ---
 
 [//]: (----------------------------------------------------------------------)
 # Advanced Optimization: Sympy
 
+[Sympy notebook](http://nbviewer.jupyter.org/github/pavanramkumar/pydata-chicago-2016/blob/master/notebooks/Sympy.ipynb).
 Take the opportunity to check your calculus work with `sympy`.
 
 #### Linear Regression
@@ -662,8 +657,6 @@ print simplify(diff(loss, b2))
 [//]: (----------------------------------------------------------------------)
 # Advanced Optimization: Sympy
 
-Take the opportunity to check your calculus work with `sympy`.
-
 #### Logistic Regression
 ```python
 from sympy import symbols, diff, simplify
@@ -693,6 +686,7 @@ x2*(y*exp(-b0 - b1*x1 - b2*x2) + y - 1)/(exp(-b0 - b1*x1 - b2*x2) + 1)
 [//]: (----------------------------------------------------------------------)
 # Advanced Optimization: Theano
 
+[Theano notebook](http://nbviewer.jupyter.org/github/pavanramkumar/pydata-chicago-2016/blob/master/notebooks/Theano.ipynb).
 `theano` does all the differentiation for you!
 
 ```python
@@ -723,8 +717,6 @@ grad_beta0, grad_beta = theano.tensor.grad(loss, [beta0, beta])
 
 [//]: (----------------------------------------------------------------------)
 # Advanced Optimization: Theano
-
-`theano` does all the differentiation for you!
 
 ```python
 # Compile
@@ -792,7 +784,7 @@ class GLM(object):
 
 #### What did we learn?
 
-- MSE = NLL
+- Mean Squared Error is special case of Negative Log Likelihood (NLL)
 - GLMs = Linear regression + Nonlinearity + Noise model
 - Regularize with elastic net = Ridge + Lasso
 - Optimize penalized NLL with gradient descent
@@ -801,6 +793,7 @@ class GLM(object):
 
 #### What next?
 
+- [Slides and notebooks](https://github.com/pavanramkumar/pydata-chicago-2016)
 - Clone `pyglmnet` and start applying it to your data!
 - Code for `pyglmnet` and submit pull requests!
 
@@ -822,7 +815,7 @@ class GLM(object):
 - Mainak Jas (Alex Gramfort's Group, Paris)
 - Titipat Achakulvisut (KordingLab, Chicago)
 - Daniel Acuna (Assistant Professor, iSchool, Syracuse)
-- Hugo Fernandes (Data Scientist, Insight)
+- Hugo Fernandes (Data Science Fellow, Insight)
 
 #### Documentation
 - Mark Albert's interns (Loyola U, Chicago)
