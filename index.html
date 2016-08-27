@@ -47,8 +47,16 @@ class: center middle
 
 [//]: (----------------------------------------------------------------------)
 # Why this package?
+**Generalized linear models** encompass a broad class of models.
+<img src="figures/glmpaper-00.png" style="width: 500px;"/>
+
 **Elastic net** is an excellent algorithm for regularization.
 <img src="figures/enetpaper-00.png" style="width: 500px;"/>
+
+---
+
+[//]: (----------------------------------------------------------------------)
+# Why this package?
 
 Fast implementation in widely popular **R** package **`glmnet`** for
 **Generalized Linear Models**.
@@ -79,18 +87,22 @@ Scikit-learn has an implementation only for linear and logistic models.
 ]
 ---
 
-# Machine Learning for Brain and Behavior
+# We often want to model spike counts
 .center[
 <img src="figures/about-01.png" style="width: 600px;"/>
 ]
 ---
 
+# Count statistics abound in the real world
+<img src="figures/githubstars-01.png" style="width: 700px;"/>
+
+---
+
 [//]: (----------------------------------------------------------------------)
-# Linear vs. Poisson Models
+# Example neurons
 
 <img src="figures/neurons-00.png" style="width: 800px;"/>
 
-See [Linear vs. Poisson notebook](http://nbviewer.jupyter.org/github/pavanramkumar/pydata-chicago-2016/blob/master/notebooks/Linear_vs_Poisson.ipynb).
 ---
 
 # Linear vs. Poisson Models
@@ -98,6 +110,8 @@ See [Linear vs. Poisson notebook](http://nbviewer.jupyter.org/github/pavanramkum
 
 --
 <img src="figures/neurons-04.png" style="width: 600px;"/>
+
+See [Linear vs. Poisson notebook](http://nbviewer.jupyter.org/github/pavanramkumar/pydata-chicago-2016/blob/master/notebooks/Linear_vs_Poisson.ipynb).
 ---
 
 [//]: (----------------------------------------------------------------------)
@@ -170,7 +184,7 @@ $$
 P(\mathbf{y} | \mathbf{X}; \beta_0, \beta) \propto \prod_i \exp\left\[-\frac{1}{2} (y_i - \beta_0 - \mathbf{x}_i^T \beta)^2\right\]
 $$
 
-- The negative log-likelihood function is identical to the sum squared loss!
+- The negative log-likelihood function is identical to the mean squared loss!
 $$
 -\mathcal{L}(\beta_0, \beta) = \frac{1}{2n}\sum_i (y_i - \hat{y}_i)^2
 $$
@@ -206,59 +220,6 @@ with mean function `\(\mathbf{\mu}\)` and parameters `\(\Theta\)`.
 Using this paramterization, GLMs allow us to model target variables `\(\mathbf{y}\)`
 that take on different ranges (e.g. binary variables, counts)
 and distributions, using real-valued predictors `\(\mathbf{X}\)`.
----
-
-[//]: (----------------------------------------------------------------------)
-# Example: Logistic Regression
-
-Consider the binary classification scenario, where `\(y_i\)`'s are binary random variables.
-`\(\mathbf{y} = \{y_i\}\)` where `\(y_i \in \{0, 1\}\)`.
-
-GLMs are fully specified by the nonlinearity `\(q(z)\)` and the noise distribution.
-
-#### Assumption 1: Nonlinearity
-We set `\(q(z) = \sigma(z) = \frac{1}{1 + e^{-z}}\)`,
-which is the sigmoid function, with domain `\((-\infty, \infty)\)`, and range `\([0, 1]\)`.
-
-```python
-def sigmoid(z):
-    s = np.exp(z) / (1 + np.exp(z))
-    return s
-
-def predict(X, beta0, beta):
-    y = sigmoid(beta0 + np.dot(X, beta))
-    return y
-```
----
-
-[//]: (----------------------------------------------------------------------)
-# Example: Logistic Regression
-
-#### Assumption 2: Noise distribution
-We assume that `\(y_i\)`'s are Bernoulli random variables with mean `\(p\)`.
-`\(P(y_i = 1) = p; P(y_i = 0) = 1-p\)`.
-We model `\(p \sim \hat{y}_i = q(\beta_0 + \mathbf{x}_i^T\beta)\)`.
-
-Let's write out the negative log-likelihood of the data given these assumptions.
-
-$$
-P(\mathbf{y} | \mathbf{X}; \beta_0, \beta) =
-\prod_i p^{y_i} (1-p)^{(1-y_i)}
-$$
-
-$$
--\mathcal{L}(\beta_0, \beta) = -\Bigg[\sum_i y_i log(\hat{y}_i) + (1-y_i) log(1-\hat{y}_i) \Bigg]
-$$
-
-This is known as the cross entropy loss.
-
-```python
-def loss(X, y, beta0, beta):
-    yhat = predict(X, beta0, beta)
-    J = -np.sum(y * np.log(yhat) + \
-               (1 - y) * np.log(1 - yhat))
-    return J
-```
 ---
 
 [//]: (----------------------------------------------------------------------)
@@ -306,6 +267,57 @@ This is known as the Poisson loss.
 def loss(X, y, beta0, beta):
     yhat = predict(X, beta0, beta)
     J = -np.sum(y * np.log(yhat) - yhat)
+    return J
+```
+---
+
+[//]: (----------------------------------------------------------------------)
+# Example: Logistic Regression
+
+Consider the binary classification scenario, where `\(y_i\)`'s are binary random variables.
+`\(\mathbf{y} = \{y_i\}\)` where `\(y_i \in \{0, 1\}\)`.
+
+#### Assumption 1: Nonlinearity
+We set `\(q(z) = \sigma(z) = \frac{1}{1 + e^{-z}}\)`,
+which is the sigmoid function, with domain `\((-\infty, \infty)\)`, and range `\([0, 1]\)`.
+
+```python
+def sigmoid(z):
+    s = np.exp(z) / (1 + np.exp(z))
+    return s
+
+def predict(X, beta0, beta):
+    y = sigmoid(beta0 + np.dot(X, beta))
+    return y
+```
+---
+
+[//]: (----------------------------------------------------------------------)
+# Example: Logistic Regression
+
+#### Assumption 2: Noise distribution
+We assume that `\(y_i\)`'s are Bernoulli random variables with mean `\(p\)`.
+`\(P(y_i = 1) = p; P(y_i = 0) = 1-p\)`.
+We model `\(p \sim \hat{y}_i = q(\beta_0 + \mathbf{x}_i^T\beta)\)`.
+
+Let's write out the negative log-likelihood of the data given these assumptions.
+
+$$
+P(\mathbf{y} | \mathbf{X}; \beta_0, \beta) =
+\prod_i p^{y_i} (1-p)^{(1-y_i)}
+$$
+
+$$
+-\mathcal{L}(\beta_0, \beta) = -\Bigg[\sum_i y_i log(\hat{y}_i) + (1-y_i) log(1-\hat{y}_i) \Bigg]
+$$
+
+This is known as the cross entropy loss.
+
+```python
+def loss(X, y, beta0, beta):
+    yhat = predict(X, beta0, beta)
+    J = -np.sum(y * np.log(yhat) + \
+               (1 - y) * np.log(1 - yhat))
     return J
 ```
 ---
@@ -388,11 +400,138 @@ def grad_loss(X, y, beta0, beta):
 ---
 
 [//]: (----------------------------------------------------------------------)
-# Optimization
+# Gradient Descent
 
 We cannot always solve this system of equations in closed form.
-But we can arrive at a unique solution by iteratively taking small steps
-against the gradient. This is called **gradient descent**.
+But we can arrive at a unique solution by guessing a starting point and
+iteratively taking small steps against the gradient.
+This is called gradient descent.
+
+.center[
+`\(
+\beta_0 \leftarrow \beta_0 - \zeta * \frac{\partial J}{\partial \beta_0}
+\)`
+
+`\(
+\beta \leftarrow \beta - \zeta * \frac{\partial J}{\partial \beta}
+\)`
+<br>
+<br>
+<img src="figures/gd-start.png" style="width: 350px;"/>
+]
+
+---
+# Gradient Descent
+
+We cannot always solve this system of equations in closed form.
+But we can arrive at a unique solution by guessing a starting point and
+iteratively taking small steps against the gradient.
+This is called gradient descent.
+
+.center[
+`\(
+\beta_0 \leftarrow \beta_0 - \zeta * \frac{\partial J}{\partial \beta_0}
+\)`
+
+`\(
+\beta \leftarrow \beta - \zeta * \frac{\partial J}{\partial \beta}
+\)`
+<br>
+<br>
+<img src="figures/gd-00.png" style="width: 350px;"/>
+]
+
+---
+# Gradient Descent
+
+We cannot always solve this system of equations in closed form.
+But we can arrive at a unique solution by guessing a starting point and
+iteratively taking small steps against the gradient.
+This is called gradient descent.
+
+.center[
+`\(
+\beta_0 \leftarrow \beta_0 - \zeta * \frac{\partial J}{\partial \beta_0}
+\)`
+
+`\(
+\beta \leftarrow \beta - \zeta * \frac{\partial J}{\partial \beta}
+\)`
+<br>
+<br>
+<img src="figures/gd-01.png" style="width: 350px;"/>
+]
+
+---
+# Gradient Descent
+
+We cannot always solve this system of equations in closed form.
+But we can arrive at a unique solution by guessing a starting point and
+iteratively taking small steps against the gradient.
+This is called gradient descent.
+
+.center[
+`\(
+\beta_0 \leftarrow \beta_0 - \zeta * \frac{\partial J}{\partial \beta_0}
+\)`
+
+`\(
+\beta \leftarrow \beta - \zeta * \frac{\partial J}{\partial \beta}
+\)`
+<br>
+<br>
+<img src="figures/gd-05.png" style="width: 350px;"/>
+]
+
+---
+# Gradient Descent
+
+We cannot always solve this system of equations in closed form.
+But we can arrive at a unique solution by guessing a starting point and
+iteratively taking small steps against the gradient.
+This is called gradient descent.
+
+.center[
+`\(
+\beta_0 \leftarrow \beta_0 - \zeta * \frac{\partial J}{\partial \beta_0}
+\)`
+
+`\(
+\beta \leftarrow \beta - \zeta * \frac{\partial J}{\partial \beta}
+\)`
+<br>
+<br>
+<img src="figures/gd-15.png" style="width: 350px;"/>
+]
+
+---
+# Gradient Descent
+
+We cannot always solve this system of equations in closed form.
+But we can arrive at a unique solution by guessing a starting point and
+iteratively taking small steps against the gradient.
+This is called gradient descent.
+
+.center[
+`\(
+\beta_0 \leftarrow \beta_0 - \zeta * \frac{\partial J}{\partial \beta_0}
+\)`
+
+`\(
+\beta \leftarrow \beta - \zeta * \frac{\partial J}{\partial \beta}
+\)`
+<br>
+<br>
+<img src="figures/gd-50.png" style="width: 350px;"/>
+]
+
+---
+# Gradient Descent
+
+We cannot always solve this system of equations in closed form.
+But we can arrive at a unique solution by guessing a starting point and
+iteratively taking small steps against the gradient.
+This is called gradient descent.
 
 .center[
 `\(
