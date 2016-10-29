@@ -5,8 +5,8 @@ Pyglmnet is a recently developed Python package for elastic net regularized
 generalized linear models (GLMs).
 
 ## Repository
-- [Pyglmnet](http://github.com/pavanramkumar/pyglmnet)
-- [Documentation](http://pavanramkumar.github.io/pyglmnet)
+- [Pyglmnet](http://github.com/glm-tools/pyglmnet)
+- [Documentation](http://glm-tools.github.io/pyglmnet)
 
 ## Schedule
 - [Talk](http://pydata.org/chicago2016/schedule/presentation/15/)
